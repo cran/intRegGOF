@@ -1,5 +1,5 @@
 Package: intRegGOF
-Version: 0.85-0
+Version: 0.85-1
 Date: 2009-10-01
 Title: Integrated Regression Goodness of Fit
 Author: Jorge Luis Ojeda Cabrera, <jojeda@unizar.es>
@@ -7,6 +7,6 @@ Description: Performs Goodness of Fit for regression models using
 Depends: R (>= 2.5.0)
 Maintainer: Jorge Luis Ojeda Cabrera <jojeda@unizar.es>
 License: GPL
-Packaged: 2011-11-14 14:59:46 UTC; jorge
+Packaged: 2012-10-29 08:59:02 UTC; ripley
 Repository: CRAN
-Date/Publication: 2011-11-14 15:16:58
+Date/Publication: 2012-10-29 08:59:02

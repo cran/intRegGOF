@@ -2,6 +2,8 @@
 \alias{compIntRegProc}
 \alias{compBootSamp}
 \alias{plotIntRegProc}
+\alias{getModelFrame}
+\alias{getResiduals}
 %- Also NEED an '\alias' for EACH other topic documented here.
 
 \title{ Utility functions for Integrated Regression Goodness of Fit }
@@ -15,6 +17,8 @@
 compIntRegProc(y, xord, weig = rep(1, length(y)))
 compBootSamp(obj, datLT, B = 999, LINMOD = FALSE)
 plotIntRegProc(y, x, weig = rep(1, length(y)), ADD = FALSE, ...)
+getModelFrame(obj)
+getResiduals(obj,type)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
@@ -33,6 +37,7 @@ plotIntRegProc(y, x, weig = rep(1, length(y)), ADD = FALSE, ...)
     \code{\link{lm}} Linear Model matrix fitting equations are used. }
   \item{x}{ vector with covarates to plot }
   \item{ADD}{ If \code{TRUE} the plot is added to existing plot. }
+  \item{type}{ Type of residual. }
   \item{\dots}{ Further parameters to plot. }
 }
 

@@ -7,6 +7,15 @@
 
 
 
+
+getModelFrame <- function(obj)
+##
+# obj = an object (lm, glm, nlm) with a model.frame.
+{
+  return( as.data.frame( model.frame(obj) ) )
+}
+
+
 getModelCovars <- function(obj)
 ##
 # obj = an object (lm, glm, nlm) with a model.frame.
@@ -14,7 +23,7 @@ getModelCovars <- function(obj)
 #     Names (strings) of all covariables used in model.
 {
   # TODO: Para la clase nls no se borra la respuesta
-  ft <- terms(model.frame(obj))
+  ft <- terms(getModelFrame(obj))
   ##  return( all.vars(delete.response(ft)) )
   return( all.vars(ft)[-1] )
 }
@@ -42,15 +51,31 @@ getContVar <- function(df,vars=NULL)
 }
 
 
+getResiduals <- function(obj,type="response")
+##
+# obj = an object (lm, glm, nlm) with a model.frame.
+# type = type of residual, see 'glm' or 'lm'
+#   RETURN:
+#      Vector of residuals for model in obj.
+{
+  if( "glm" %in% class(obj) )
+    hatEps <- residuals(obj,type="response")
+  else
+    hatEps <- residuals(obj)
+  return( hatEps )
+}
+
+
 getModelWeights <- function(obj)
 ##
 # obj = an object (lm, glm, nlm) with a model.frame.
 #   RETURN:
 #      Vector of weights for model in obj.
 {
-  weig <- model.weights(model.frame(obj))
+  mf <- getModelFrame(obj)
+  weig <- model.weights(mf)
   if( is.null(weig) ) 
-    weig <- rep(1,nrow(model.frame(obj)))
+    weig <- rep(1,nrow(mf))
   return( weig )
 }
 
@@ -80,7 +105,7 @@ compBootSamp <- function(obj,datLT,B=999,LINMOD=FALSE)
 # return a matrix with colum names "Kn" and "Wn"
 ##  OBS: nlm is not checked
 {
-  hatEps <- residuals(obj)
+  hatEps <- getResiduals(obj)
   hatY <- fitted(obj)
   n <- length(hatY)
   weig <- getModelWeights(obj)
@@ -100,13 +125,13 @@ compBootSamp <- function(obj,datLT,B=999,LINMOD=FALSE)
     }
   } else {
     objCall <- obj$call
-    objmf <- model.frame(obj)
+    objmf <- getModelFrame(obj)
     for(i in 1:B)
     {
       objmf[,1] <- hatY + hatEps * rWildBoot(n)
       objCall$data <- objmf
       ##TODO: compIntRegProc(residuals(eval(objCall)),datLT,weig)
-      cbr <- mvCumSum( as.vector(residuals( eval(objCall)))*weig,datLT)/sqrt(n)
+      cbr <- mvCumSum(as.vector(getResiduals(eval(objCall)))*weig,datLT)/sqrt(n)
       bootSamp <- rbind(bootSamp,c(Kn=max(abs(cbr)),Wn=mean(cbr^2)))
     }
   }
@@ -215,8 +240,8 @@ intRegGOF <- function(obj,covars=NULL,B=499,LINMOD=FALSE)
   irmc <- match.call()
   objCall <- obj$call
   ##  TODO: stopifnot if data argument is not set or check code !!
-  objmf <- model.frame(obj)
-  hatEps <- residuals(obj)
+  objmf <- getModelFrame(obj)
+  hatEps <- getResiduals(obj)
   hatY <- fitted(obj)
   weig <- getModelWeights(obj)
   if( is.null(covars) )
@@ -278,10 +303,10 @@ plotAsIntRegGOF <- function(obj,covar=1,ADD=FALSE,...)
     stopifnot( is.numeric(x <- data[,covar]) )
   } else if ( is.numeric(covar) && length(covar)==1 ) {
     stopifnot( covar>=0 )
-    datXX <- model.frame(obj)
+    datXX <- getModelFrame(obj)
     covar <- names(datXX)[covar+1]
     x <- datXX[,covar]
-  } else if ( is.numeric(covar) && length(covar)==length(residuals(obj)) ) {
+  } else if ( is.numeric(covar) && length(covar)==length(getResiduals(obj)) ) {
     x <- covar
     covar <- deparse(substitute(covar))
   } else if ( class(covar)=="formula" ) {
@@ -294,7 +319,7 @@ plotAsIntRegGOF <- function(obj,covar=1,ADD=FALSE,...)
     stop(paste("'covar' has an improper value."))
   }
   if(ADD) {
-    plotIntRegProc(residuals(obj),x,getModelWeights(obj),ADD=TRUE,...)
+    plotIntRegProc(getResiduals(obj),x,getModelWeights(obj),ADD=TRUE,...)
   } else {
     ## check for xlab, ylab, main
     print(mc)
@@ -302,7 +327,7 @@ plotAsIntRegGOF <- function(obj,covar=1,ADD=FALSE,...)
     ylab <- if ( is.null(mc$ylab) ) "Int. Reg." else mc$ylab
     main <- if ( is.null(mc$main) ) obj$call else mc$main
     ## plotting instruction
-    plotIntRegProc(residuals(obj),x,getModelWeights(obj),
+    plotIntRegProc(getResiduals(obj),x,getModelWeights(obj),
                  ADD=FALSE,main=main,xlab=xlab,ylab=ylab,...)
   }
   invisible()
@@ -364,8 +389,10 @@ anovarIntReg <- function(objH0,...,covars=NULL,B=499,
   res <- NULL
   for(m in list(objH0,...)) {
     ep <- compIntRegProc(resid(m),datLT,weig)
-    KnpVal <- mean( bs[,"Kn"] > (epK <- max(abs(ep))) )
-    WnpVal <- mean( bs[,"Wn"] > (epW <- mean(ep^2)) )
+    epK <- max(abs(ep))
+    epW <- mean(ep^2)
+    KnpVal <- 2*min( mean( bs[,"Kn"] < epK ), mean( bs[,"Kn"] > epK ) )
+    WnpVal <- 2*min( mean( bs[,"Wn"] < epW ), mean( bs[,"Wn"] > epW ) )
     if( INCREMENTAL && is.null(res) )
        bs <- compBootSamp(m,datLT,B,LINMOD)
     res <- rbind(res, c(epK,KnpVal,epW,WnpVal))

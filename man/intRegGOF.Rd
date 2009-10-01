@@ -17,8 +17,8 @@
 }
 
 \arguments{
-  \item{obj}{ An object of class \code{\link{lm}}, \code{\link{glm}} 
-    or \code{\link{nls}}. }
+  \item{obj}{ An object of class \code{\link{lm}}, \code{\link{glm}} or 
+    \code{\link{nls}}. }
   \item{covars}{ Names of continuous (numerical) variates used to  
     compute Integrated Regression. They should be variables contained
     
@@ -57,6 +57,10 @@ in the data frame used to compute the regression fit.   }
   The method also handles selection biased data by means of 
   compensation, by means of the weights used to fit the resgression 
   function when computing the cumulated residual process.
+
+  At the moment only \code{'response'} type of residuals are considered,
+  jointly with wild bootstrap resampling technique and the result for 
+  discrete responses might no be proper. 
 }
 
 \value{
