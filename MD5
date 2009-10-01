@@ -1,0 +1,8 @@
+f8980c09aae6cadff23ac85add21b4f0 *DESCRIPTION
+fe886d87f40e5e39f85af96a8b88be2f *R/intRegGOF.R
+e7ee8f67aac4f997bd3e7904971511d9 *README
+2be73c2b565cddc5458cc24cad86f782 *man/anovarIntReg.Rd
+d7f03943a614a75fad80c72a630862e9 *man/compIntRegProc.Rd
+3bf84cfbc8942a2a64fce9d6e9c13658 *man/getLessThan.Rd
+54bcf72a5964a260443af2b9124c9dd2 *man/intRegGOF.Rd
+1ba3b6e47293b9e3af82293e3761f513 *man/plotAsIntRegGOF.Rd
