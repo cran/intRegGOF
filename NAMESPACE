@@ -1,5 +1,30 @@
-# Default NAMESPACE created by R
-# Remove the previous line if you edit this file
+# intRegGOF Specific NAMESPACE
 
-# Export all names
-exportPattern(".")
+# Registering S3 mehtods  
+S3method(print, intRegGOF)
+S3method(print, anovarIntReg)
+
+
+# Some imports  
+  importFrom("graphics", "lines", "plot", "points")
+  importFrom("stats", "delete.response", "fitted", "model.frame",
+             "model.matrix", "model.weights", "printCoefmat", "rbinom",
+             "resid", "residuals")
+
+
+# print.anovarIntReg, print.intRegGOF
+
+# Exports all names
+export( anovarIntReg, intRegGOF, 
+        linesAsIntRegGOF, plotAsIntRegGOF, 
+        plotIntRegProc, pointsAsIntRegGOF	
+)
+
+## Not exported: rWildBoot, mvCumSum, mvPartOrd, compIntRegProc,
+##               getContVar, getLessThan, getModelCovars, getModelFrame
+##               getModelWeights, getResiduals,	compBootSamp
+
+
+         
+
+

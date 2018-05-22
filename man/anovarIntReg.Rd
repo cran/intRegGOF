@@ -1,7 +1,7 @@
 \name{anovarIntReg}
 \alias{anovarIntReg}
 \alias{print.anovarIntReg}
-%% \alias{plot.anovarIntReg}
+%% \alias{plot.anovarIntReg}  \mehtod{print}{anovarIntReg}
 %- Also NEED an '\alias' for EACH other topic documented here.
 \title{ Integrated Regression Goodness of Fit }
 
@@ -14,7 +14,7 @@
 \usage{
   anovarIntReg(objH0, ..., covars = NULL, B = 499, 
     LINMOD = FALSE, INCREMENTAL = FALSE)
-  print.anovarIntReg(x,...)
+  \method{print}{anovarIntReg}(x,...)
 }
 
 \arguments{

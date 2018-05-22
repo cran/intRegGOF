@@ -1,9 +1,8 @@
-fda44a8a6acca0aeb8554a1b29abcf9e *DESCRIPTION
-9fdfeb11f7ddba6f3aab9aaa6b1ac5dd *NAMESPACE
-47b803ba0006ebcdf5a4d0f8544f3e05 *R/intRegGOF.R
-e7ee8f67aac4f997bd3e7904971511d9 *README
-2be73c2b565cddc5458cc24cad86f782 *man/anovarIntReg.Rd
+c63c310d32952f6121d6409822aacf29 *DESCRIPTION
+ba817f04e9e8bf794518b15252000efa *NAMESPACE
+d8f52b8261c8374980cb8a19bfb51755 *R/intRegGOF.R
+29484b3bde36e09a03300774a5016c94 *man/anovarIntReg.Rd
 3e08f07b96e8c65ae77b7e232767f95d *man/compIntRegProc.Rd
 3bf84cfbc8942a2a64fce9d6e9c13658 *man/getLessThan.Rd
-6ff0f74d7eff8eea1109983a1e90ad79 *man/intRegGOF.Rd
+87e634f5eecbd9f63eebbbe7517f675e *man/intRegGOF.Rd
 1ba3b6e47293b9e3af82293e3761f513 *man/plotAsIntRegGOF.Rd

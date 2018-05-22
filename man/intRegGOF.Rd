@@ -13,7 +13,7 @@
 
 \usage{
   intRegGOF(obj, covars = NULL, B = 499, LINMOD = FALSE)
-  print.intRegGOF(x,...)
+  \method{print}{intRegGOF}(x,...)
 }
 
 \arguments{

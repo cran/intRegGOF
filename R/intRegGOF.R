@@ -21,11 +21,19 @@ getModelCovars <- function(obj)
 # obj = an object (lm, glm, nlm) with a model.frame.
 #   RETURN:
 #     Names (strings) of all covariables used in model.
+#     Asumes first name in model.frame is tha name of the response.
 {
   # TODO: Para la clase nls no se borra la respuesta
-  ft <- terms(getModelFrame(obj))
+  ##  ft <- terms(getModelFrame(obj))
   ##  return( all.vars(delete.response(ft)) )
-  return( all.vars(ft)[-1] )
+  ##  return( all.vars(ft)[-1] )
+  ft <- getModelFrame(obj)
+  nft <- names(ft)
+  ww <- which(nft=="(weights)")
+  if(length(ww)>0)
+    return( nft[c(-1,-ww)] )
+  else
+    return( nft[-1] )
 }
 
 
@@ -43,9 +51,11 @@ getContVar <- function(df,vars=NULL)
     vars <- getModelCovars(df)
   if(!is.data.frame(df))
     df <- eval( df$call$data,envir=parent.frame() )
-  stopifnot(all(vars %in% names(df)))
+  vars <- grep("I[(].*[)]",vars,value=TRUE,invert=TRUE)
+  #stopifnot(all(vars %in% names(df)))
   if (length(vars)==1) {
-    if(is.numeric(df[,vars])) return(vars) else stop("No numeric covariables")
+    ##if(is.numeric(df[,vars])) return(vars) else stop("No numeric covariables")
+    if(is.numeric(df[,vars])) return(vars) else return( c() )
   } else
     return( vars[ sapply(df[,vars],is.numeric)==TRUE ] )
 }
@@ -139,6 +149,32 @@ compBootSamp <- function(obj,datLT,B=999,LINMOD=FALSE)
 }
 
 
+compBootSampDisc <- function(obj,B=999)
+# obj = an lm, glm or nlm fit object.
+# B = bootstrap sample size
+# return a matrix with colum names "Kn" and "Wn"
+##  OBS: nlm, glm are not checked
+{
+  hatEps <- getResiduals(obj)
+  hatY <- fitted(obj)
+  n <- length(hatY)
+  weig <- getModelWeights(obj)
+  xMat <- model.matrix(obj)
+  wMat <- diag(weig)
+  hMat <- xMat %*% solve(t(xMat) %*% wMat %*% xMat) %*% t(xMat) %*% wMat
+  bootSamp <- NULL
+  for(i in 1:B)
+  {
+    astY <- hatY + hatEps * rWildBoot(n)
+    hatAstY <- hMat %*% astY
+    ##TODO: compIntRegProc(as.vector(astY-hatAstY),datLT,weig)
+    cbr <- sum(as.vector( astY-hatAstY )*weig)/sqrt(n) 
+    bootSamp <- rbind(bootSamp,cbind(Kn=abs(cbr),Wn=cbr^2))
+  } 
+  return( bootSamp )
+}
+
+
 plotIntRegProc <- function(y,x,weig=rep(1,length(y)),ADD=FALSE,...)
 ##
 #
@@ -167,7 +203,7 @@ plotIntRegProc <- function(y,x,weig=rep(1,length(y)),ADD=FALSE,...)
 #     Comparison needed to compute multivariate Integrated Residuals Tests.
 #   implementaciones
 #   NOTAS:
-#     Mejorar con algoritomo de ordenación !!
+#     Improve sort algorithm !!
 #   ERRORES:
 
 
@@ -248,7 +284,7 @@ intRegGOF <- function(obj,covars=NULL,B=499,LINMOD=FALSE)
     covars <- getModelCovars(obj)
   else if( !is.vector(covars) )## assume it is a formula ~...
     covars <- all.vars(delete.response(covars))
-## TODO: sólo las variables continuas !!!
+## TODO: only cont. variates !!!
   datXX <- eval( obj$call$data,envir=parent.frame() )
   covars <- getContVar(datXX,covars)
   if( length(covars)>0 ) { 
@@ -261,8 +297,15 @@ intRegGOF <- function(obj,covars=NULL,B=499,LINMOD=FALSE)
     KnpVal <- mean(bootSamp[,"Kn"] > datKn)
     WnpVal <- mean(bootSamp[,"Wn"] > datWn)
   } else {
-    # when y~1 we cannot do anything
-    bootSamp <- datLT <- datIntErr <- datKn <- datWn <- KnpVal <- WnpVal <- NA
+    # Not properly solved  
+    # Why not create an artificial rv and perform the analysis against it ?.
+    bootSamp <- NA # compBootSampDisc(obj,B=199)
+    datLT <- NA
+    datIntErr <- NA #sum(resid(obj)*weig)/sqrt(nrow(objmf)) 
+    datKn <- NA #abs(datIntErr)
+    datWn <- NA #datIntErr^2
+    KnpVal <- NA #mean(bootSamp[,"Kn"] > datKn)
+    WnpVal <- NA #mean(bootSamp[,"Wn"] > datWn)
   }
   res <- list(  call=irmc,regObj=deparse(substitute(obj)),regModel=objCall,
                 p.value=c(Kn=KnpVal,Wn=WnpVal), datStat=c(Kn=datKn,Wn=datWn),
@@ -375,7 +418,7 @@ anovarIntReg <- function(objH0,...,covars=NULL,B=499,
     }
   } else if( !is.vector(covars) )## assume it is a formula ~...
     covars <- all.vars(delete.response(covars))
-## TODO: sólo las variables continuas !!!
+## TODO: only cont. variates !!!
   # get weigths
   weig <- getModelWeights(objH0)
   # get data for cont. covars
